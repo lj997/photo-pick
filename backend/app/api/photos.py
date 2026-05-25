@@ -10,7 +10,7 @@ from fastapi.responses import FileResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
 
-from app.models import Photo
+from app.models import Photo, PhotoTag
 from app.models.database import get_db
 from app.schemas import PhotoResponse, PhotoListResponse
 from app.services.thumbnail_service import get_thumbnail_path
@@ -28,6 +28,7 @@ async def list_photos(
     stars_max: int | None = None,
     status: str | None = None,
     color_label: str | None = None,
+    tag: str | None = Query(None, description="标签筛选，格式: dimension:value"),
     db: AsyncSession = Depends(get_db),
 ):
     query = select(Photo).where(Photo.session_id == session_id)
@@ -42,6 +43,18 @@ async def list_photos(
     if color_label:
         labels = color_label.split(",")
         query = query.where(Photo.color_label.in_(labels))
+    if tag:
+        parts = tag.split(":", 1)
+        if len(parts) == 2:
+            dim, val = parts
+            query = query.where(
+                Photo.id.in_(
+                    select(PhotoTag.photo_id).where(
+                        PhotoTag.dimension == dim,
+                        PhotoTag.tag_value == val,
+                    )
+                )
+            )
 
     count_query = select(func.count()).select_from(query.subquery())
     total_result = await db.execute(count_query)

@@ -7,6 +7,8 @@ ORM 数据模型
 - Group / GroupMember: 连拍分组
 - AnalysisResult: 质量分析结果
 - ExportJob: 导出任务记录
+- AISetting: AI 模型配置（key-value）
+- PhotoTag: 照片内容标签
 """
 import uuid
 from datetime import datetime
@@ -62,12 +64,15 @@ class Photo(Base):
     thumb_sm_ready: Mapped[bool] = mapped_column(Boolean, default=False)
     thumb_lg_ready: Mapped[bool] = mapped_column(Boolean, default=False)
 
+    phash: Mapped[str | None] = mapped_column(String, default=None)
+
     sort_order: Mapped[int] = mapped_column(Integer, default=0)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     session: Mapped["Session"] = relationship(back_populates="photos")
     analysis_results: Mapped[list["AnalysisResult"]] = relationship(back_populates="photo", cascade="all, delete-orphan")
+    tags: Mapped[list["PhotoTag"]] = relationship(back_populates="photo", cascade="all, delete-orphan")
 
     __table_args__ = (
         Index("idx_photos_session", "session_id"),
@@ -132,3 +137,30 @@ class ExportJob(Base):
     processed_count: Mapped[int] = mapped_column(Integer, default=0)
     started_at: Mapped[datetime | None] = mapped_column(DateTime)
     completed_at: Mapped[datetime | None] = mapped_column(DateTime)
+
+
+class AISetting(Base):
+    __tablename__ = "ai_settings"
+
+    key: Mapped[str] = mapped_column(String, primary_key=True)
+    value: Mapped[str] = mapped_column(Text, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+
+class PhotoTag(Base):
+    __tablename__ = "photo_tags"
+
+    id: Mapped[str] = mapped_column(String, primary_key=True, default=gen_uuid)
+    photo_id: Mapped[str] = mapped_column(String, ForeignKey("photos.id", ondelete="CASCADE"))
+    dimension: Mapped[str] = mapped_column(String, nullable=False)
+    tag_value: Mapped[str] = mapped_column(String, nullable=False)
+    source: Mapped[str] = mapped_column(String, default="ai")
+    confidence: Mapped[float | None] = mapped_column(Float)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+
+    photo: Mapped["Photo"] = relationship(back_populates="tags")
+
+    __table_args__ = (
+        Index("idx_tags_photo", "photo_id"),
+        Index("idx_tags_dimension_value", "dimension", "tag_value"),
+    )

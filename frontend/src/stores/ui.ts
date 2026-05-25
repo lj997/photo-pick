@@ -4,10 +4,12 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 
-export type ViewMode = 'grid' | 'viewer' | 'compare'
+export type ViewMode = 'grid' | 'viewer' | 'compare' | 'pk'
+export type GridMode = 'flat' | 'grouped'
 
 export const useUIStore = defineStore('ui', () => {
   const viewMode = ref<ViewMode>('grid')
+  const gridMode = ref<GridMode>('flat')
   const sidebarVisible = ref(true)
   const zoomLevel = ref(1)
   const gridColumns = ref(3)
@@ -15,6 +17,10 @@ export const useUIStore = defineStore('ui', () => {
 
   function setViewMode(mode: ViewMode) {
     viewMode.value = mode
+  }
+
+  function setGridMode(mode: GridMode) {
+    gridMode.value = mode
   }
 
   function toggleSidebar() {
@@ -35,11 +41,13 @@ export const useUIStore = defineStore('ui', () => {
 
   return {
     viewMode,
+    gridMode,
     sidebarVisible,
     zoomLevel,
     gridColumns,
     showExportDialog,
     setViewMode,
+    setGridMode,
     toggleSidebar,
     setZoom,
     setGridColumns,

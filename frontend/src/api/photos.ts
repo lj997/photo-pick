@@ -12,6 +12,7 @@ export interface PhotoListParams {
   stars_max?: number
   status?: string
   color_label?: string
+  tag?: string
 }
 
 export async function listPhotos(sessionId: string, params: PhotoListParams = {}): Promise<PhotoListResponse> {

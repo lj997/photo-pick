@@ -18,8 +18,22 @@ async def start_analysis(
     db: AsyncSession = Depends(get_db),
 ):
     types = body.get("types", ["blur", "exposure"])
-    background_tasks.add_task(_run_analysis, session_id, types)
-    return {"ok": True, "types": types}
+
+    if "content_tags" in types:
+        background_tasks.add_task(_run_content_analysis, session_id)
+        types = [t for t in types if t != "content_tags"]
+
+    if types:
+        background_tasks.add_task(_run_analysis, session_id, types)
+
+    return {"ok": True, "types": body.get("types", ["blur", "exposure"])}
+
+
+async def _run_content_analysis(session_id: str):
+    from app.services.content_tag_service import analyze_session_content
+
+    async with async_session_factory() as db:
+        await analyze_session_content(db, session_id)
 
 
 async def _run_analysis(session_id: str, types: list[str]):

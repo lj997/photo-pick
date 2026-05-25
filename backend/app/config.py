@@ -23,6 +23,7 @@ class Settings(BaseSettings):
     thumbnail_workers: int = 4
 
     grouping_time_threshold_seconds: float = 2.0
+    similarity_hash_threshold: int = 8
 
     cloud_api_key: str = ""
     cloud_enabled: bool = False

@@ -25,6 +25,7 @@ export const usePhotosStore = defineStore('photos', () => {
     stars_max?: number
     status?: string
     color_label?: string
+    tag?: string
   }>({})
 
   async function loadPhotos(sid?: string) {

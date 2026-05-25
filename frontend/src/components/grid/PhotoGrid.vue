@@ -10,12 +10,34 @@
         <span class="text-text-muted text-sm">正在加载照片...</span>
       </div>
       <div
-        v-else-if="photos.photos.length === 0"
+        v-else-if="photos.photos.length === 0 && groupsStore.groups.length === 0"
         class="h-full flex flex-col items-center justify-center gap-2"
       >
-        <span class="text-3xl">📷</span>
+        <span class="text-3xl">&#128247;</span>
         <span class="text-text-muted text-sm">暂无照片</span>
       </div>
+
+      <!-- 分组模式 -->
+      <div
+        v-else-if="ui.gridMode === 'grouped' && groupsStore.groups.length > 0"
+        class="grid gap-3"
+        :style="{ gridTemplateColumns: 'repeat(' + columns + ', 1fr)' }"
+      >
+        <template v-for="(group, gIdx) in groupsStore.groups" :key="group.id">
+          <GroupHeader :group="group" @enter-pk="onEnterPK(gIdx)" />
+          <PhotoTile
+            v-for="photo in (group.members || [])"
+            :key="photo.id"
+            :photo="photo"
+            :selected="false"
+            @click="selectGroupPhoto(photo.id)"
+            @dblclick="openGroupViewer(photo.id)"
+            @mark="(marks) => onMark(photo.id, marks)"
+          />
+        </template>
+      </div>
+
+      <!-- 平铺模式 -->
       <div
         v-else
         class="grid gap-3"
@@ -33,8 +55,8 @@
       </div>
     </div>
 
-    <!-- Pagination bar -->
-    <div class="h-11 flex items-center justify-between px-4 bg-bg-raised border-t border-border shrink-0">
+    <!-- Pagination bar (仅平铺模式) -->
+    <div v-if="ui.gridMode === 'flat'" class="h-11 flex items-center justify-between px-4 bg-bg-raised border-t border-border shrink-0">
       <div class="flex items-center gap-2 text-sm text-text-secondary">
         <span>每页</span>
         <select
@@ -57,14 +79,14 @@
           :disabled="photos.page <= 1"
           class="px-2 py-1 rounded-lg text-sm disabled:opacity-30 text-text-secondary hover:text-text-DEFAULT hover:bg-surface-hover transition-all"
         >
-          «
+          &laquo;
         </button>
         <button
           @click="photos.prevPage()"
           :disabled="photos.page <= 1"
           class="px-2 py-1 rounded-lg text-sm disabled:opacity-30 text-text-secondary hover:text-text-DEFAULT hover:bg-surface-hover transition-all"
         >
-          ‹
+          &lsaquo;
         </button>
 
         <template v-for="p in visiblePages" :key="p">
@@ -92,14 +114,14 @@
           :disabled="photos.page >= photos.totalPages"
           class="px-2 py-1 rounded-lg text-sm disabled:opacity-30 text-text-secondary hover:text-text-DEFAULT hover:bg-surface-hover transition-all"
         >
-          ›
+          &rsaquo;
         </button>
         <button
           @click="photos.goToPage(photos.totalPages)"
           :disabled="photos.page >= photos.totalPages"
           class="px-2 py-1 rounded-lg text-sm disabled:opacity-30 text-text-secondary hover:text-text-DEFAULT hover:bg-surface-hover transition-all"
         >
-          »
+          &raquo;
         </button>
       </div>
     </div>
@@ -107,14 +129,16 @@
 </template>
 
 <script setup lang="ts">
-// 照片网格组件 - CSS Grid 布局，分页控制，响应式列数
 import { computed } from 'vue'
 import { usePhotosStore } from '../../stores/photos'
 import { useUIStore } from '../../stores/ui'
+import { useGroupsStore } from '../../stores/groups'
 import PhotoTile from './PhotoTile.vue'
+import GroupHeader from './GroupHeader.vue'
 
 const photos = usePhotosStore()
 const ui = useUIStore()
+const groupsStore = useGroupsStore()
 
 const columns = computed(() => ui.gridColumns)
 const loading = computed(() => photos.loading)
@@ -149,6 +173,19 @@ function selectPhoto(idx: number) {
 function openViewer(idx: number) {
   photos.setCurrentIndex(idx)
   ui.setViewMode('viewer')
+}
+
+function selectGroupPhoto(_photoId: string) {
+  // 分组模式下单击暂无特殊行为
+}
+
+function openGroupViewer(_photoId: string) {
+  // 分组模式下双击暂无特殊行为
+}
+
+function onEnterPK(groupIndex: number) {
+  groupsStore.enterGroup(groupIndex)
+  ui.setViewMode('pk')
 }
 
 function onMark(photoId: string, marks: { stars?: number; color_label?: string; status?: string }) {

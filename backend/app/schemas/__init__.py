@@ -104,3 +104,52 @@ class ExportJobResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+# --- AI 标签相关 ---
+
+class AISettingsResponse(BaseModel):
+    ai_enabled: bool = False
+    ai_provider: str = "claude"
+    ai_model_name: str = ""
+    ai_api_key: str = ""
+    ai_base_url: str = ""
+
+
+class AISettingsUpdate(BaseModel):
+    ai_enabled: bool | None = None
+    ai_provider: str | None = None
+    ai_model_name: str | None = None
+    ai_api_key: str | None = None
+    ai_base_url: str | None = None
+
+
+class PhotoTagResponse(BaseModel):
+    id: str
+    photo_id: str
+    dimension: str
+    tag_value: str
+    source: str = "ai"
+    confidence: float | None = None
+
+    class Config:
+        from_attributes = True
+
+
+class PhotoTagCreate(BaseModel):
+    dimension: str
+    tag_value: str
+
+
+class TagCount(BaseModel):
+    value: str
+    count: int
+
+
+class TagDimensionSummary(BaseModel):
+    dimension: str
+    tags: list[TagCount]
+
+
+class TagSummaryResponse(BaseModel):
+    dimensions: list[TagDimensionSummary]

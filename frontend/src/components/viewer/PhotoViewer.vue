@@ -141,6 +141,11 @@
         >对比</button>
       </div>
     </div>
+
+    <!-- 右侧标签面板 -->
+    <div v-if="currentPhoto" class="absolute top-14 right-3 z-10 w-52 bg-white/95 rounded-xl shadow-elevated p-3 backdrop-blur-sm">
+      <PhotoTagEditor :photo-id="currentPhoto.id" />
+    </div>
   </div>
 </template>
 
@@ -150,6 +155,7 @@ import { ref, computed, watch } from 'vue'
 import { usePhotosStore } from '../../stores/photos'
 import { useUIStore } from '../../stores/ui'
 import { getFullPhotoUrl } from '../../api/photos'
+import PhotoTagEditor from '../tags/PhotoTagEditor.vue'
 
 const photos = usePhotosStore()
 const ui = useUIStore()

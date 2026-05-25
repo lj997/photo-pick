@@ -75,3 +75,36 @@ export interface ExportConfig {
 }
 
 export type ColorLabel = 'red' | 'yellow' | 'green' | 'blue' | 'purple'
+
+// --- AI 标签相关 ---
+
+export interface PhotoTag {
+  id: string
+  photo_id: string
+  dimension: 'scene' | 'people' | 'setting' | 'composition'
+  tag_value: string
+  source: 'ai' | 'manual'
+  confidence: number | null
+}
+
+export interface AISettings {
+  ai_enabled: boolean
+  ai_provider: 'claude' | 'openai' | 'deepseek' | 'custom'
+  ai_model_name: string
+  ai_api_key: string
+  ai_base_url: string
+}
+
+export interface TagCount {
+  value: string
+  count: number
+}
+
+export interface TagDimensionSummary {
+  dimension: string
+  tags: TagCount[]
+}
+
+export interface TagSummary {
+  dimensions: TagDimensionSummary[]
+}

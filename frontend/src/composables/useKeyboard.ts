@@ -13,6 +13,9 @@ export function useKeyboard() {
     const target = e.target as HTMLElement
     if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') return
 
+    // PK 模式快捷键由 PKCompareView 组件自行处理
+    if (ui.viewMode === 'pk') return
+
     switch (e.key) {
       case 'ArrowRight':
       case 'j':
