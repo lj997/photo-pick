@@ -1,0 +1,108 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-bg: #faf9f7;
+  --color-surface: #f0ebe4;
+  --color-border: #d6d3d1;
+  --color-accent: #b45309;
+  --color-text: #1c1917;
+  --color-text-secondary: #57534e;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'PingFang SC', 'Microsoft YaHei', 'Segoe UI', sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  overflow: hidden;
+  height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+#app {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  background: none;
+  font: inherit;
+  color: inherit;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
+input, select {
+  font: inherit;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #d6d3d1;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a8a29e;
+}
+
+@layer components {
+  .btn-primary {
+    @apply px-4 py-2 rounded-lg bg-accent text-white text-sm font-medium transition-all;
+  }
+  .btn-primary:hover {
+    background-color: #92400e;
+    box-shadow: 0 2px 8px rgba(180, 83, 9, 0.25);
+  }
+  .btn-ghost {
+    @apply px-3 py-1.5 rounded-lg text-sm font-medium transition-all;
+    color: #57534e;
+  }
+  .btn-ghost:hover {
+    color: #1c1917;
+    background-color: #e8e2da;
+  }
+  .btn-icon {
+    @apply w-8 h-8 flex items-center justify-center rounded-lg transition-all;
+    color: #57534e;
+  }
+  .btn-icon:hover {
+    color: #1c1917;
+    background-color: #e8e2da;
+  }
+  .input-base {
+    @apply w-full px-3 py-2 rounded-lg border text-sm;
+    background: #ffffff;
+    border-color: #d6d3d1;
+    color: #1c1917;
+  }
+  .input-base::placeholder {
+    color: #78716c;
+  }
+  .input-base:focus {
+    outline: none;
+    border-color: #b45309;
+    box-shadow: 0 0 0 3px rgba(180, 83, 9, 0.1);
+  }
+}
