@@ -63,22 +63,31 @@
       </div>
     </div>
 
-    <!-- Reset -->
-    <button
-      @click="resetFilters"
-      class="w-full py-2 text-xs font-medium text-text-secondary hover:text-text-DEFAULT bg-bg-raised border border-border hover:border-text-muted rounded-lg transition-all"
-    >重置筛选</button>
+    <!-- 确认 & 重置 -->
+    <div class="flex gap-2">
+      <button
+        @click="applyAll"
+        :class="['flex-1 py-2 text-xs font-medium rounded-lg transition-all border',
+          isDirty ? 'bg-accent text-white border-accent hover:bg-accent-hover shadow-sm' : 'bg-bg-raised text-text-muted border-border cursor-default']"
+        :disabled="!isDirty"
+      >确认筛选</button>
+      <button
+        @click="resetFilters"
+        class="flex-1 py-2 text-xs font-medium text-text-secondary hover:text-text-DEFAULT bg-bg-raised border border-border hover:border-text-muted rounded-lg transition-all"
+      >重置筛选</button>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-// 筛选面板 - 按星级、状态、颜色标签组合过滤照片
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { usePhotosStore } from '../../stores/photos'
 import { useUIStore } from '../../stores/ui'
+import { useTagsStore } from '../../stores/tags'
 
 const photos = usePhotosStore()
 const ui = useUIStore()
+const tags = useTagsStore()
 
 const statuses = [
   { value: '', label: '全部' },
@@ -99,38 +108,54 @@ const activeStatus = ref('')
 const activeStarsMin = ref(0)
 const activeColor = ref('')
 
+// 记录上次已应用的筛选条件，用于判断是否有未确认的变更
+const appliedStatus = ref('')
+const appliedStarsMin = ref(0)
+const appliedColor = ref('')
+
+const isDirty = computed(() => {
+  return activeStatus.value !== appliedStatus.value
+    || activeStarsMin.value !== appliedStarsMin.value
+    || activeColor.value !== appliedColor.value
+})
+
 function toggleStatus(value: string) {
   activeStatus.value = activeStatus.value === value ? '' : value
-  applyAll()
 }
 
 function setStarsMin(value: number) {
   activeStarsMin.value = value
-  applyAll()
 }
 
 function toggleColor(value: string) {
   activeColor.value = activeColor.value === value ? '' : value
-  applyAll()
 }
 
 function clearColor() {
   activeColor.value = ''
-  applyAll()
 }
 
 function resetFilters() {
   activeStatus.value = ''
   activeStarsMin.value = 0
   activeColor.value = ''
-  applyAll()
+  appliedStatus.value = ''
+  appliedStarsMin.value = 0
+  appliedColor.value = ''
+  tags.clearFilters()
+  photos.setFilters({})
+  photos.applyFilters()
 }
 
 function applyAll() {
+  appliedStatus.value = activeStatus.value
+  appliedStarsMin.value = activeStarsMin.value
+  appliedColor.value = activeColor.value
   photos.setFilters({
     status: activeStatus.value || undefined,
     stars_min: activeStarsMin.value || undefined,
     color_label: activeColor.value || undefined,
+    tag: tags.activeTagFilter,
   })
   photos.applyFilters()
 }

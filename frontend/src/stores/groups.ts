@@ -177,6 +177,17 @@ export const useGroupsStore = defineStore('groups', () => {
     }
   }
 
+  function updateMemberPhoto(photoId: string, data: Partial<Photo>) {
+    for (const group of groups.value) {
+      if (!group.members) continue
+      const member = group.members.find(m => m.id === photoId)
+      if (member) {
+        Object.assign(member, data)
+        break
+      }
+    }
+  }
+
   return {
     groups,
     loading,
@@ -206,5 +217,6 @@ export const useGroupsStore = defineStore('groups', () => {
     prevChallenger,
     nextGroup,
     prevGroup,
+    updateMemberPhoto,
   }
 })

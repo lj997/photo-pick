@@ -188,8 +188,9 @@ function onEnterPK(groupIndex: number) {
   ui.setViewMode('pk')
 }
 
-function onMark(photoId: string, marks: { stars?: number; color_label?: string; status?: string }) {
-  photos.setMark(photoId, marks)
+async function onMark(photoId: string, marks: { stars?: number; color_label?: string; status?: string }) {
+  await photos.setMark(photoId, marks)
+  groupsStore.updateMemberPhoto(photoId, marks as any)
 }
 
 function onPageSizeChange(e: Event) {

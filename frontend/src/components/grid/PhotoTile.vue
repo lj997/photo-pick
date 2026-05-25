@@ -79,6 +79,14 @@
       :class="['absolute top-1.5 right-1.5 w-3 h-3 rounded-full shadow-sm', colorClass]"
     ></div>
 
+    <!-- 入选标识条 -->
+    <div
+      v-if="photo.status === 'accepted' && imgLoaded"
+      class="absolute bottom-0 left-0 right-0 px-2.5 py-1.5 bg-gradient-to-t from-green-600/80 to-green-500/0 flex items-center gap-1"
+    >
+      <span class="text-white text-xs font-medium">&#10003; 已入选</span>
+    </div>
+
     <!-- Filename on hover -->
     <div v-if="photo.thumb_sm_ready && imgLoaded" class="absolute bottom-8 left-0 right-0 px-2 text-xs text-white/80 truncate opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
       {{ photo.filename }}
