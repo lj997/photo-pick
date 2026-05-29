@@ -16,6 +16,11 @@ const router = createRouter({
       name: 'browse',
       component: () => import('../views/BrowseView.vue'),
     },
+    {
+      path: '/organize/:sessionId',
+      name: 'organize',
+      component: () => import('../views/OrganizeView.vue'),
+    },
   ],
 })
 

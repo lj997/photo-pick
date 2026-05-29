@@ -83,7 +83,7 @@ export interface PhotoTag {
   photo_id: string
   dimension: 'scene' | 'people' | 'setting' | 'composition'
   tag_value: string
-  source: 'ai' | 'manual'
+  source: 'ai' | 'manual' | 'local'
   confidence: number | null
 }
 

@@ -27,3 +27,18 @@ export async function getSessionTagSummary(sessionId: string): Promise<TagSummar
   const { data } = await api.get(`/sessions/${sessionId}/tags/summary`)
   return data
 }
+
+export interface LocalTagAnalysisResult {
+  total: number
+  tagged: number
+  tags_created: number
+  mode: string
+  failed: number
+}
+
+export type LocalTagMode = 'rules' | 'vision'
+
+export async function generateLocalTags(sessionId: string, mode: LocalTagMode = 'vision'): Promise<LocalTagAnalysisResult> {
+  const { data } = await api.post(`/sessions/${sessionId}/tags/local`, { mode })
+  return data
+}

@@ -14,6 +14,14 @@
           <div class="truncate text-sm font-semibold text-text-DEFAULT">{{ sessionName }}</div>
           <div class="text-xs text-text-muted">{{ photos.total }} 张照片 · 第 {{ photos.page }}/{{ photos.totalPages }} 页</div>
         </div>
+        <button
+          @click="$router.push({ name: 'organize', params: { sessionId } })"
+          class="ml-2 inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-accent px-3 py-1.5 text-xs font-medium text-white shadow-sm transition-colors hover:bg-accent-hover"
+          title="进入照片整理"
+        >
+          <FolderTree class="h-3.5 w-3.5" />
+          整理照片
+        </button>
       </div>
 
       <div class="flex items-center gap-2 overflow-x-auto">
@@ -133,6 +141,7 @@ import {
   ArrowLeft,
   Columns3,
   Download,
+  FolderTree,
   Grid3X3,
   Image,
   PanelLeftClose,

@@ -5,7 +5,7 @@
       <div class="mb-8 flex items-center justify-between">
         <div>
           <h1 class="text-2xl font-bold text-text-DEFAULT tracking-tight">光影甄选</h1>
-          <p class="mt-1 text-sm text-text-secondary">导入、筛选、标记和导出，一屏完成。</p>
+          <p class="mt-1 text-sm text-text-secondary">照片挑选与照片整理，两个工作流各自独立。</p>
         </div>
         <div class="hidden items-center gap-2 rounded-lg border border-border bg-bg-raised px-3 py-2 text-xs text-text-muted shadow-card sm:flex">
           <Clock3 class="h-4 w-4" />
@@ -19,8 +19,8 @@
           <div class="mb-5 flex h-12 w-12 items-center justify-center rounded-lg bg-accent/10 text-accent">
             <FolderOpen class="h-6 w-6" />
           </div>
-          <h2 class="text-xl font-semibold text-text-DEFAULT">开始新的选片项目</h2>
-          <p class="mt-2 max-w-xl text-sm text-text-secondary">选择包含照片的文件夹，系统会创建会话并生成缩略图，方便后续筛选和标记。</p>
+          <h2 class="text-xl font-semibold text-text-DEFAULT">导入照片项目</h2>
+          <p class="mt-2 max-w-xl text-sm text-text-secondary">选择包含照片的文件夹，导入后可进入“照片挑选”或“照片整理”两个独立板块。</p>
 
           <div class="mt-7 flex flex-col gap-3 sm:flex-row">
             <input
@@ -57,24 +57,41 @@
             <span class="text-xs text-text-muted">{{ sessions.length }} 个</span>
           </div>
           <div v-if="sessions.length" class="space-y-2">
-            <button
+            <div
               v-for="session in sessions"
               :key="session.id"
-              class="group flex w-full items-center justify-between gap-3 rounded-lg border border-transparent bg-surface/60 px-3 py-3 text-left transition-all hover:border-accent/30 hover:bg-accent/5"
-              @click="openSession(session.id)"
+              class="group rounded-lg border border-transparent bg-surface/60 px-3 py-3 transition-all hover:border-accent/30 hover:bg-accent/5"
             >
-              <div class="min-w-0">
-                <div class="truncate text-sm font-medium text-text-DEFAULT">{{ session.name }}</div>
-                <div class="mt-0.5 text-xs text-text-muted">{{ session.photo_count }} 张照片</div>
+              <div class="mb-3 flex items-center justify-between gap-3">
+                <div class="min-w-0">
+                  <div class="truncate text-sm font-medium text-text-DEFAULT">{{ session.name }}</div>
+                  <div class="mt-0.5 text-xs text-text-muted">{{ session.photo_count }} 张照片</div>
+                </div>
+                <button
+                  @click.stop="removeSession(session.id)"
+                  class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-text-muted transition-colors hover:bg-red-50 hover:text-red-600"
+                  title="删除项目"
+                >
+                  <Trash2 class="h-4 w-4" />
+                </button>
               </div>
-              <span
-                @click.stop="removeSession(session.id)"
-                class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-text-muted transition-colors hover:bg-red-50 hover:text-red-600"
-                title="删除项目"
-              >
-                <Trash2 class="h-4 w-4" />
-              </span>
-            </button>
+              <div class="grid grid-cols-2 gap-2">
+                <button
+                  class="inline-flex items-center justify-center gap-1.5 rounded-lg bg-accent px-3 py-2 text-xs font-medium text-white transition-colors hover:bg-accent-hover"
+                  @click="openSession(session.id)"
+                >
+                  <Images class="h-3.5 w-3.5" />
+                  照片挑选
+                </button>
+                <button
+                  class="inline-flex items-center justify-center gap-1.5 rounded-lg border border-border bg-bg-raised px-3 py-2 text-xs font-medium text-text-DEFAULT transition-colors hover:border-accent hover:text-accent"
+                  @click="openOrganizer(session.id)"
+                >
+                  <FolderTree class="h-3.5 w-3.5" />
+                  照片整理
+                </button>
+              </div>
+            </div>
           </div>
           <div v-else class="flex h-44 flex-col items-center justify-center rounded-lg border border-dashed border-border text-center">
             <FolderOpen class="mb-2 h-6 w-6 text-text-muted" />
@@ -98,7 +115,7 @@
 // 首页视图 - 会话列表管理、导入文件夹创建新会话
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { Clock3, FolderOpen, Search, Trash2, Upload } from 'lucide-vue-next'
+import { Clock3, FolderOpen, FolderTree, Images, Search, Trash2, Upload } from 'lucide-vue-next'
 import type { Session } from '../types/photo'
 import { createSession, listSessions, deleteSession } from '../api/sessions'
 import FolderPicker from '../components/common/FolderPicker.vue'
@@ -141,6 +158,10 @@ async function importFolder() {
 
 function openSession(id: string) {
   router.push({ name: 'browse', params: { sessionId: id } })
+}
+
+function openOrganizer(id: string) {
+  router.push({ name: 'organize', params: { sessionId: id } })
 }
 
 async function removeSession(id: string) {

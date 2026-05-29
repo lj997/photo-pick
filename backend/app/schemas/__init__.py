@@ -106,6 +106,78 @@ class ExportJobResponse(BaseModel):
         from_attributes = True
 
 
+# --- 照片整理相关 ---
+
+class OrganizeFilter(BaseModel):
+    stars_min: int | None = None
+    status: list[str] | None = None
+    colors: list[str] | None = None
+    tag: str | None = None
+
+
+class OrganizeConfig(BaseModel):
+    destination: str
+    mode: str = "copy"  # copy or move
+    group_by: list[str] = ["month"]  # date, month, year, status, stars, color, camera, lens, format, tag:scene
+    filters: OrganizeFilter | None = None
+    rename_template: str | None = None
+    include_note_template: bool = True
+    manual_paths: dict[str, str] | None = None  # photo_id -> relative folder path
+
+
+class OrganizePhotoPreview(BaseModel):
+    id: str
+    filename: str
+    target_path: str
+    taken_at: datetime | None = None
+    camera_model: str | None = None
+    lens: str | None = None
+    format: str | None = None
+    file_size: int | None = None
+    stars: int = 0
+    color_label: str | None = None
+    status: str = "pending"
+    tags: list[str] = []
+
+
+class OrganizeGroupPreview(BaseModel):
+    path: str
+    count: int
+    sample_filenames: list[str] = []
+    photos: list[OrganizePhotoPreview] = []
+
+
+class OrganizePreviewResponse(BaseModel):
+    total: int
+    destination: str
+    groups: list[OrganizeGroupPreview]
+
+
+class OrganizeResultResponse(BaseModel):
+    total: int
+    processed: int
+    skipped: int
+    destination: str
+    note_path: str | None = None
+
+
+class NoteReadResponse(BaseModel):
+    path: str
+    exists: bool
+    content: str = ""
+
+
+class NoteSaveRequest(BaseModel):
+    directory: str
+    filename: str = "PHOTO_STORY.md"
+    content: str
+
+
+class NoteSaveResponse(BaseModel):
+    path: str
+    saved: bool = True
+
+
 # --- AI 标签相关 ---
 
 class AISettingsResponse(BaseModel):
@@ -153,3 +225,15 @@ class TagDimensionSummary(BaseModel):
 
 class TagSummaryResponse(BaseModel):
     dimensions: list[TagDimensionSummary]
+
+
+class LocalTagAnalysisResponse(BaseModel):
+    total: int
+    tagged: int
+    tags_created: int
+    mode: str = "vision"
+    failed: int = 0
+
+
+class LocalTagAnalysisRequest(BaseModel):
+    mode: str = "vision"  # rules or vision

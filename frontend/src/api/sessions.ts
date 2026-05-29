@@ -14,6 +14,11 @@ export async function listSessions(): Promise<Session[]> {
   return data
 }
 
+export async function getSession(id: string): Promise<Session> {
+  const { data } = await api.get(`/sessions/${id}`)
+  return data
+}
+
 export async function deleteSession(id: string): Promise<void> {
   await api.delete(`/sessions/${id}`)
 }

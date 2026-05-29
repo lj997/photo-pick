@@ -9,7 +9,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.models.database import init_db
-from app.api import sessions, photos, marks, groups, analysis, export, ws, filesystem, ai_settings, tags
+from app.api import sessions, photos, marks, groups, analysis, export, ws, filesystem, ai_settings, tags, organizer
 
 
 @asynccontextmanager
@@ -38,6 +38,7 @@ app.include_router(ws.router)
 app.include_router(filesystem.router)
 app.include_router(ai_settings.router)
 app.include_router(tags.router)
+app.include_router(organizer.router)
 
 
 @app.get("/api/health")
