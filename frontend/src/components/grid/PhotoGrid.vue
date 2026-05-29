@@ -23,10 +23,10 @@
         class="grid gap-3"
         :style="{ gridTemplateColumns: 'repeat(' + columns + ', 1fr)' }"
       >
-        <template v-for="(group, gIdx) in groupsStore.groups" :key="group.id">
+        <template v-for="(group, gIdx) in filteredGroups" :key="group.id">
           <GroupHeader :group="group" @enter-pk="onEnterPK(gIdx)" />
           <PhotoTile
-            v-for="photo in (group.members || [])"
+            v-for="photo in group.members"
             :key="photo.id"
             :photo="photo"
             :selected="false"
@@ -135,6 +135,7 @@ import { useUIStore } from '../../stores/ui'
 import { useGroupsStore } from '../../stores/groups'
 import PhotoTile from './PhotoTile.vue'
 import GroupHeader from './GroupHeader.vue'
+import type { Photo } from '../../types/photo'
 
 const photos = usePhotosStore()
 const ui = useUIStore()
@@ -142,6 +143,30 @@ const groupsStore = useGroupsStore()
 
 const columns = computed(() => ui.gridColumns)
 const loading = computed(() => photos.loading)
+
+const hasActiveFilters = computed(() => {
+  const f = photos.filters
+  return !!(f.status || f.stars_min || f.color_label || f.tag)
+})
+
+function matchesFilters(photo: Photo): boolean {
+  const f = photos.filters
+  if (f.status && photo.status !== f.status) return false
+  if (f.stars_min && photo.stars < f.stars_min) return false
+  if (f.stars_max && photo.stars > f.stars_max) return false
+  if (f.color_label && photo.color_label !== f.color_label) return false
+  return true
+}
+
+const filteredGroups = computed(() => {
+  if (!hasActiveFilters.value) return groupsStore.groups
+  return groupsStore.groups
+    .map(group => ({
+      ...group,
+      members: (group.members || []).filter(matchesFilters)
+    }))
+    .filter(group => group.members.length > 0)
+})
 
 const visiblePages = computed(() => {
   const total = photos.totalPages

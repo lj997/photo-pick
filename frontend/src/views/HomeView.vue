@@ -1,61 +1,86 @@
 <template>
-  <div class="h-screen flex flex-col items-center justify-center bg-bg p-8">
-    <div class="w-full max-w-lg">
-      <!-- Logo & title -->
-      <div class="text-center mb-10">
-        <h1 class="text-3xl font-bold text-text-DEFAULT tracking-tight">光影甄选</h1>
-        <p class="text-text-secondary mt-2">专业选片工具 · 快速浏览 · 智能标记 · 高效导出</p>
-      </div>
-
-      <!-- Import card -->
-      <div class="bg-bg-raised rounded-xl shadow-card p-6 mb-6">
-        <label class="block text-sm font-medium text-text-DEFAULT mb-2">导入照片文件夹</label>
-        <div class="flex gap-2">
-          <input
-            v-model="folderPath"
-            type="text"
-            placeholder="输入文件夹路径，例如 E:\Photos\2024"
-            class="input-base flex-1"
-            @keyup.enter="importFolder"
-          />
-          <button
-            @click="showPicker = true"
-            class="px-3 py-2 rounded-lg text-sm font-medium border border-border text-text-DEFAULT hover:border-text-muted transition-all whitespace-nowrap"
-          >浏览</button>
-          <button
-            @click="importFolder"
-            :disabled="importing"
-            class="btn-primary whitespace-nowrap"
-          >
-            {{ importing ? '导入中...' : '开始导入' }}
-          </button>
+  <div class="h-screen overflow-y-auto bg-bg">
+    <div class="mx-auto flex min-h-full w-full max-w-6xl flex-col px-6 py-8">
+      <!-- Header -->
+      <div class="mb-8 flex items-center justify-between">
+        <div>
+          <h1 class="text-2xl font-bold text-text-DEFAULT tracking-tight">光影甄选</h1>
+          <p class="mt-1 text-sm text-text-secondary">导入、筛选、标记和导出，一屏完成。</p>
         </div>
-        <p v-if="error" class="mt-3 text-red-600 text-sm">{{ error }}</p>
-        <p v-if="importProgress" class="mt-3 text-text-secondary text-sm">{{ importProgress }}</p>
+        <div class="hidden items-center gap-2 rounded-lg border border-border bg-bg-raised px-3 py-2 text-xs text-text-muted shadow-card sm:flex">
+          <Clock3 class="h-4 w-4" />
+          <span>{{ sessions.length }} 个最近项目</span>
+        </div>
       </div>
 
-      <!-- Recent sessions -->
-      <div v-if="sessions.length">
-        <h2 class="text-sm font-medium text-text-secondary mb-3 px-1">最近的项目</h2>
-        <div class="space-y-2">
-          <div
-            v-for="session in sessions"
-            :key="session.id"
-            class="flex items-center justify-between px-4 py-3 bg-bg-raised rounded-xl shadow-card hover:shadow-card-hover cursor-pointer transition-all"
-            @click="openSession(session.id)"
-          >
-            <div>
-              <span class="text-text-DEFAULT font-medium">{{ session.name }}</span>
-              <span class="text-text-muted text-sm ml-3">{{ session.photo_count }} 张照片</span>
-            </div>
+      <div class="grid flex-1 gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
+        <!-- Import panel -->
+        <section class="flex flex-col justify-center rounded-lg border border-border bg-bg-raised p-6 shadow-card">
+          <div class="mb-5 flex h-12 w-12 items-center justify-center rounded-lg bg-accent/10 text-accent">
+            <FolderOpen class="h-6 w-6" />
+          </div>
+          <h2 class="text-xl font-semibold text-text-DEFAULT">开始新的选片项目</h2>
+          <p class="mt-2 max-w-xl text-sm text-text-secondary">选择包含照片的文件夹，系统会创建会话并生成缩略图，方便后续筛选和标记。</p>
+
+          <div class="mt-7 flex flex-col gap-3 sm:flex-row">
+            <input
+              v-model="folderPath"
+              type="text"
+              placeholder="输入文件夹路径，例如 E:\Photos\2024"
+              class="input-base min-h-11 flex-1"
+              @keyup.enter="importFolder"
+            />
             <button
-              @click.stop="removeSession(session.id)"
-              class="text-text-muted hover:text-red-500 transition-colors text-lg leading-none"
+              @click="showPicker = true"
+              class="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-border px-4 text-sm font-medium text-text-DEFAULT transition-all hover:border-accent hover:text-accent"
             >
-              &times;
+              <Search class="h-4 w-4" />
+              浏览
+            </button>
+            <button
+              @click="importFolder"
+              :disabled="importing"
+              class="btn-primary inline-flex min-h-11 items-center justify-center gap-2 whitespace-nowrap disabled:opacity-60"
+            >
+              <Upload class="h-4 w-4" />
+              {{ importing ? '导入中...' : '开始导入' }}
             </button>
           </div>
-        </div>
+          <p v-if="error" class="mt-3 text-sm text-red-600">{{ error }}</p>
+          <p v-if="importProgress" class="mt-3 text-sm text-text-secondary">{{ importProgress }}</p>
+        </section>
+
+        <!-- Recent sessions -->
+        <section class="rounded-lg border border-border bg-bg-raised p-4 shadow-card">
+          <div class="mb-3 flex items-center justify-between">
+            <h2 class="text-sm font-semibold text-text-DEFAULT">最近项目</h2>
+            <span class="text-xs text-text-muted">{{ sessions.length }} 个</span>
+          </div>
+          <div v-if="sessions.length" class="space-y-2">
+            <button
+              v-for="session in sessions"
+              :key="session.id"
+              class="group flex w-full items-center justify-between gap-3 rounded-lg border border-transparent bg-surface/60 px-3 py-3 text-left transition-all hover:border-accent/30 hover:bg-accent/5"
+              @click="openSession(session.id)"
+            >
+              <div class="min-w-0">
+                <div class="truncate text-sm font-medium text-text-DEFAULT">{{ session.name }}</div>
+                <div class="mt-0.5 text-xs text-text-muted">{{ session.photo_count }} 张照片</div>
+              </div>
+              <span
+                @click.stop="removeSession(session.id)"
+                class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-text-muted transition-colors hover:bg-red-50 hover:text-red-600"
+                title="删除项目"
+              >
+                <Trash2 class="h-4 w-4" />
+              </span>
+            </button>
+          </div>
+          <div v-else class="flex h-44 flex-col items-center justify-center rounded-lg border border-dashed border-border text-center">
+            <FolderOpen class="mb-2 h-6 w-6 text-text-muted" />
+            <p class="text-sm text-text-secondary">还没有最近项目</p>
+          </div>
+        </section>
       </div>
     </div>
 
@@ -73,6 +98,7 @@
 // 首页视图 - 会话列表管理、导入文件夹创建新会话
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { Clock3, FolderOpen, Search, Trash2, Upload } from 'lucide-vue-next'
 import type { Session } from '../types/photo'
 import { createSession, listSessions, deleteSession } from '../api/sessions'
 import FolderPicker from '../components/common/FolderPicker.vue'

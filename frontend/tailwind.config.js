@@ -5,28 +5,28 @@ export default {
     extend: {
       colors: {
         bg: {
-          DEFAULT: '#faf9f7',
+          DEFAULT: '#f6f7f9',
           raised: '#ffffff',
         },
         surface: {
-          DEFAULT: '#f0ebe4',
+          DEFAULT: '#eef1f5',
           light: '#fefefe',
-          lighter: '#e8e2da',
-          hover: '#e8e2da',
+          lighter: '#e5e9f0',
+          hover: '#e8edf5',
         },
         border: {
-          DEFAULT: '#d6d3d1',
-          light: '#e7e5e4',
+          DEFAULT: '#d8dee8',
+          light: '#e7ebf1',
         },
         accent: {
-          DEFAULT: '#b45309',
-          hover: '#92400e',
-          muted: '#fef3c7',
+          DEFAULT: '#2563eb',
+          hover: '#1d4ed8',
+          muted: '#dbeafe',
         },
         text: {
-          DEFAULT: '#1c1917',
-          secondary: '#57534e',
-          muted: '#78716c',
+          DEFAULT: '#111827',
+          secondary: '#4b5563',
+          muted: '#7b8494',
         },
       },
       borderRadius: {

@@ -1,24 +1,36 @@
 <template>
   <div class="p-4 space-y-5">
-    <div class="text-xs font-semibold text-text-secondary uppercase tracking-wider">筛选</div>
+    <div class="flex items-center justify-between">
+      <div class="inline-flex items-center gap-2 text-xs font-semibold text-text-secondary tracking-wider">
+        <SlidersHorizontal class="h-4 w-4" />
+        筛选
+      </div>
+      <button
+        @click="resetFilters"
+        class="text-xs font-medium text-text-muted transition-colors hover:text-accent"
+      >重置</button>
+    </div>
 
     <!-- Status filter -->
     <div>
       <div class="text-xs text-text-muted mb-2">状态</div>
-      <div class="flex flex-wrap gap-1.5">
+      <div class="grid grid-cols-2 gap-1.5">
         <button
           v-for="s in statuses"
           :key="s.value"
           @click="toggleStatus(s.value)"
-          :class="['px-3 py-1.5 rounded-lg text-xs font-medium transition-all border', activeStatus === s.value ? 'bg-accent text-white shadow-sm border-accent' : 'bg-bg-raised text-text-secondary border-border hover:text-text-DEFAULT hover:border-text-muted']"
-        >{{ s.label }}</button>
+          :class="['inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all border', activeStatus === s.value ? 'bg-accent text-white shadow-sm border-accent' : 'bg-bg-raised text-text-secondary border-border hover:text-text-DEFAULT hover:border-accent/40']"
+        >
+          <component :is="s.icon" class="h-3.5 w-3.5" />
+          {{ s.label }}
+        </button>
       </div>
     </div>
 
     <!-- Stars filter -->
     <div>
       <div class="text-xs text-text-muted mb-2">最低评分</div>
-      <div class="flex gap-1.5">
+      <div class="grid grid-cols-3 gap-1.5">
         <button
           v-for="i in 6"
           :key="i - 1"
@@ -52,35 +64,26 @@
 
     <!-- Grid columns -->
     <div>
-      <div class="text-xs text-text-muted mb-2">列数</div>
-      <div class="flex gap-1.5">
-        <button
-          v-for="n in [2, 3, 4, 5]"
-          :key="n"
-          @click="ui.setGridColumns(n)"
-          :class="['px-3 py-1.5 rounded-lg text-xs font-medium transition-all border', ui.gridColumns === n ? 'bg-accent text-white shadow-sm border-accent' : 'bg-bg-raised text-text-secondary border-border hover:text-text-DEFAULT hover:border-text-muted']"
-        >{{ n }}</button>
+      <div class="mb-2 flex items-center justify-between">
+        <div class="text-xs text-text-muted">网格列数</div>
+        <div class="text-xs font-medium text-text-DEFAULT">{{ ui.gridColumns }} 列</div>
       </div>
-    </div>
-
-    <!-- 确认 & 重置 -->
-    <div class="flex gap-2">
-      <button
-        @click="applyAll"
-        :class="['flex-1 py-2 text-xs font-medium rounded-lg transition-all border',
-          isDirty ? 'bg-accent text-white border-accent hover:bg-accent-hover shadow-sm' : 'bg-bg-raised text-text-muted border-border cursor-default']"
-        :disabled="!isDirty"
-      >确认筛选</button>
-      <button
-        @click="resetFilters"
-        class="flex-1 py-2 text-xs font-medium text-text-secondary hover:text-text-DEFAULT bg-bg-raised border border-border hover:border-text-muted rounded-lg transition-all"
-      >重置筛选</button>
+      <input
+        :value="ui.gridColumns"
+        type="range"
+        min="2"
+        max="8"
+        step="1"
+        class="w-full accent-accent"
+        @input="ui.setGridColumns(parseInt(($event.target as HTMLInputElement).value))"
+      />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
+import { CheckCircle2, CircleDashed, SlidersHorizontal, XCircle } from 'lucide-vue-next'
 import { usePhotosStore } from '../../stores/photos'
 import { useUIStore } from '../../stores/ui'
 import { useTagsStore } from '../../stores/tags'
@@ -90,10 +93,10 @@ const ui = useUIStore()
 const tags = useTagsStore()
 
 const statuses = [
-  { value: '', label: '全部' },
-  { value: 'pending', label: '待定' },
-  { value: 'accepted', label: '入选' },
-  { value: 'rejected', label: '淘汰' },
+  { value: '', label: '全部', icon: SlidersHorizontal },
+  { value: 'pending', label: '待定', icon: CircleDashed },
+  { value: 'accepted', label: '入选', icon: CheckCircle2 },
+  { value: 'rejected', label: '淘汰', icon: XCircle },
 ]
 
 const colors = [
@@ -108,49 +111,36 @@ const activeStatus = ref('')
 const activeStarsMin = ref(0)
 const activeColor = ref('')
 
-// 记录上次已应用的筛选条件，用于判断是否有未确认的变更
-const appliedStatus = ref('')
-const appliedStarsMin = ref(0)
-const appliedColor = ref('')
-
-const isDirty = computed(() => {
-  return activeStatus.value !== appliedStatus.value
-    || activeStarsMin.value !== appliedStarsMin.value
-    || activeColor.value !== appliedColor.value
-})
-
 function toggleStatus(value: string) {
   activeStatus.value = activeStatus.value === value ? '' : value
+  applyAll()
 }
 
 function setStarsMin(value: number) {
   activeStarsMin.value = value
+  applyAll()
 }
 
 function toggleColor(value: string) {
   activeColor.value = activeColor.value === value ? '' : value
+  applyAll()
 }
 
 function clearColor() {
   activeColor.value = ''
+  applyAll()
 }
 
 function resetFilters() {
   activeStatus.value = ''
   activeStarsMin.value = 0
   activeColor.value = ''
-  appliedStatus.value = ''
-  appliedStarsMin.value = 0
-  appliedColor.value = ''
   tags.clearFilters()
   photos.setFilters({})
   photos.applyFilters()
 }
 
 function applyAll() {
-  appliedStatus.value = activeStatus.value
-  appliedStarsMin.value = activeStarsMin.value
-  appliedColor.value = activeColor.value
   photos.setFilters({
     status: activeStatus.value || undefined,
     stars_min: activeStarsMin.value || undefined,

@@ -22,6 +22,8 @@ data/db/
 dist/
 build/
 *.egg-info/
+*.tsbuildinfo
+vite-dev*.log
 
 # Environment
 .env

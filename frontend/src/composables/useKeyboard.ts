@@ -19,13 +19,29 @@ export function useKeyboard() {
     switch (e.key) {
       case 'ArrowRight':
       case 'j':
-        e.preventDefault()
-        photos.next()
+        if (!e.ctrlKey && !e.metaKey) {
+          e.preventDefault()
+          photos.next()
+        }
         break
       case 'ArrowLeft':
       case 'k':
-        e.preventDefault()
-        photos.prev()
+        if (!e.ctrlKey && !e.metaKey) {
+          e.preventDefault()
+          photos.prev()
+        }
+        break
+      case 'ArrowUp':
+        if (e.ctrlKey || e.metaKey) {
+          e.preventDefault()
+          photos.setCurrentMark({ status: 'accepted' })
+        }
+        break
+      case 'ArrowDown':
+        if (e.ctrlKey || e.metaKey) {
+          e.preventDefault()
+          photos.setCurrentMark({ status: 'rejected' })
+        }
         break
       case '1':
       case '2':
@@ -55,6 +71,10 @@ export function useKeyboard() {
         e.preventDefault()
         photos.setCurrentMark({ color_label: 'blue' })
         break
+      case 'u':
+        e.preventDefault()
+        photos.setCurrentMark({ status: 'pending' })
+        break
       case 'p':
         e.preventDefault()
         photos.setCurrentMark({ status: 'accepted' })
@@ -63,9 +83,9 @@ export function useKeyboard() {
         e.preventDefault()
         photos.setCurrentMark({ status: 'rejected' })
         break
-      case 'u':
+      case 's':
         e.preventDefault()
-        photos.setCurrentMark({ status: 'pending' })
+        ui.toggleSidebar()
         break
       case ' ':
       case 'z':

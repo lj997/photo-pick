@@ -2,7 +2,11 @@
   "permissions": {
     "allow": [
       "Bash(npx vue-tsc *)",
-      "Bash(npx vite *)"
+      "Bash(npx vite *)",
+      "Bash(.venv/Scripts/python.exe -c \"from app.main import app; from app.api.groups import router; print\\('OK'\\)\")",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)"
     ]
   }
 }

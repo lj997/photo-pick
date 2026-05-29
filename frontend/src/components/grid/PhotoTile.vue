@@ -28,7 +28,7 @@
       <span class="text-text-muted text-xs">生成缩略图...</span>
     </div>
 
-    <!-- Hover action overlay (top) - only show when image is ready -->
+    <!-- Hover action overlay (top-left) - only show when image is ready -->
     <div v-if="photo.thumb_sm_ready && imgLoaded" class="absolute top-0 left-0 right-0 px-2 py-1.5 flex items-center justify-between opacity-0 group-hover:opacity-100 transition-opacity bg-gradient-to-b from-black/50 to-transparent">
       <!-- Color labels -->
       <div class="flex gap-1">
@@ -46,19 +46,26 @@
         <button
           @click.stop="$emit('mark', { status: photo.status === 'accepted' ? 'pending' : 'accepted' })"
           :class="['w-6 h-6 rounded-md flex items-center justify-center text-sm font-bold transition-colors', photo.status === 'accepted' ? 'bg-green-500 text-white' : 'bg-black/40 text-white/70 hover:bg-green-500 hover:text-white']"
-          title="入选 (P)"
+          title="入选 (Ctrl+↑)"
         >&#10003;</button>
         <button
           @click.stop="$emit('mark', { status: photo.status === 'rejected' ? 'pending' : 'rejected' })"
           :class="['w-6 h-6 rounded-md flex items-center justify-center text-sm font-bold transition-colors', photo.status === 'rejected' ? 'bg-red-500 text-white' : 'bg-black/40 text-white/70 hover:bg-red-500 hover:text-white']"
-          title="淘汰 (X)"
+          title="淘汰 (Ctrl+↓)"
         >&#10005;</button>
       </div>
     </div>
 
-    <!-- Bottom bar: stars + status - only show when image is ready -->
-    <div v-if="photo.thumb_sm_ready && imgLoaded" class="absolute bottom-0 left-0 right-0 px-2 py-1.5 flex items-center justify-between bg-gradient-to-t from-black/50 to-transparent">
-      <!-- Stars (clickable) -->
+    <!-- 顶部居中：文件名 + 评分（常驻显示，悬停时隐藏避免遮挡操作按钮） -->
+    <div v-if="photo.thumb_sm_ready && imgLoaded" class="absolute top-1.5 left-1/2 -translate-x-1/2 flex flex-col items-center gap-0.5 pointer-events-none opacity-100 group-hover:opacity-0 transition-opacity">
+      <span class="px-1.5 py-0.5 rounded bg-black/60 text-white/90 text-[10px] leading-tight max-w-[140px] truncate">{{ photo.filename }}</span>
+      <div v-if="photo.stars > 0" class="px-1.5 py-0.5 rounded bg-black/60 flex gap-0">
+        <span v-for="i in photo.stars" :key="i" class="text-amber-400 text-[10px] leading-none">&#9733;</span>
+      </div>
+    </div>
+
+    <!-- Bottom bar: stars (clickable on hover) -->
+    <div v-if="photo.thumb_sm_ready && imgLoaded" class="absolute bottom-0 left-0 right-0 px-2 py-1.5 flex items-center justify-between opacity-0 group-hover:opacity-100 transition-opacity bg-gradient-to-t from-black/50 to-transparent">
       <div class="flex gap-0.5">
         <button
           v-for="i in 5"
@@ -68,15 +75,12 @@
           :title="`${i} 星`"
         >&#9733;</button>
       </div>
-      <!-- Status badge -->
-      <span v-if="photo.status === 'accepted'" class="text-green-400 text-xs font-bold">&#10003;</span>
-      <span v-else-if="photo.status === 'rejected'" class="text-red-400 text-xs font-bold">&#10005;</span>
     </div>
 
-    <!-- Color label indicator (only when loaded) -->
+    <!-- Color label indicator (bottom-left, only when loaded) -->
     <div
       v-if="photo.color_label && imgLoaded"
-      :class="['absolute top-1.5 right-1.5 w-3 h-3 rounded-full shadow-sm', colorClass]"
+      :class="['absolute bottom-1.5 left-1.5 w-3 h-3 rounded-full shadow-sm', colorClass]"
     ></div>
 
     <!-- 入选标识条 -->
@@ -85,11 +89,6 @@
       class="absolute bottom-0 left-0 right-0 px-2.5 py-1.5 bg-gradient-to-t from-green-600/80 to-green-500/0 flex items-center gap-1"
     >
       <span class="text-white text-xs font-medium">&#10003; 已入选</span>
-    </div>
-
-    <!-- Filename on hover -->
-    <div v-if="photo.thumb_sm_ready && imgLoaded" class="absolute bottom-8 left-0 right-0 px-2 text-xs text-white/80 truncate opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-      {{ photo.filename }}
     </div>
   </div>
 </template>

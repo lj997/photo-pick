@@ -140,7 +140,7 @@ uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 
 # 终端 2 - 前端（端口 5173）
 cd frontend
-pnpm dev
+npm run dev
 ```
 
 访问 `http://localhost:5173` 即可使用。

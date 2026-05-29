@@ -1,49 +1,61 @@
 <template>
   <div class="h-screen flex flex-col bg-bg">
     <!-- Header -->
-    <header class="h-12 flex items-center justify-between px-5 bg-bg-raised border-b border-border shrink-0 shadow-card">
-      <div class="flex items-center gap-3">
-        <button @click="$router.push('/')" class="btn-ghost px-2 py-1 text-lg">&larr;</button>
-        <span class="text-text-DEFAULT font-semibold text-sm">{{ sessionName }}</span>
-        <span class="text-text-muted text-xs">{{ photos.total }} 张照片</span>
+    <header class="h-14 flex items-center justify-between gap-4 px-4 bg-bg-raised border-b border-border shrink-0 shadow-card">
+      <div class="flex min-w-0 items-center gap-2">
+        <button @click="$router.push('/')" class="btn-icon" title="返回项目列表">
+          <ArrowLeft class="h-4 w-4" />
+        </button>
+        <button @click="ui.toggleSidebar()" class="btn-icon" :title="ui.sidebarVisible ? '隐藏侧栏' : '显示侧栏'">
+          <PanelLeftClose v-if="ui.sidebarVisible" class="h-4 w-4" />
+          <PanelLeftOpen v-else class="h-4 w-4" />
+        </button>
+        <div class="min-w-0">
+          <div class="truncate text-sm font-semibold text-text-DEFAULT">{{ sessionName }}</div>
+          <div class="text-xs text-text-muted">{{ photos.total }} 张照片 · 第 {{ photos.page }}/{{ photos.totalPages }} 页</div>
+        </div>
       </div>
 
-      <div class="flex items-center gap-2">
+      <div class="flex items-center gap-2 overflow-x-auto">
         <!-- View mode tabs -->
-        <div class="flex border border-border rounded-lg p-0.5 bg-bg">
+        <div class="flex shrink-0 border border-border rounded-lg p-0.5 bg-surface">
           <button
             v-for="m in viewModes"
             :key="m.key"
             @click="ui.setViewMode(m.key)"
-            :class="['px-4 py-1.5 rounded-md text-xs font-medium transition-all', ui.viewMode === m.key ? 'bg-accent text-white shadow-sm' : 'text-text-DEFAULT hover:bg-surface-hover']"
-          >{{ m.label }}</button>
+            :class="['inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all', ui.viewMode === m.key ? 'bg-accent text-white shadow-sm' : 'text-text-DEFAULT hover:bg-bg-raised']"
+          >
+            <component :is="m.icon" class="h-3.5 w-3.5" />
+            {{ m.label }}
+          </button>
         </div>
 
         <!-- Grid mode toggle (仅网格视图时显示) -->
-        <div v-if="ui.viewMode === 'grid'" class="flex border border-border rounded-lg p-0.5 bg-bg ml-1">
+        <div v-if="ui.viewMode === 'grid'" class="flex shrink-0 border border-border rounded-lg p-0.5 bg-surface">
           <button
             @click="ui.setGridMode('flat')"
-            :class="['px-3 py-1.5 rounded-md text-xs font-medium transition-all', ui.gridMode === 'flat' ? 'bg-accent text-white shadow-sm' : 'text-text-DEFAULT hover:bg-surface-hover']"
+            :class="['px-3 py-1.5 rounded-md text-xs font-medium transition-all', ui.gridMode === 'flat' ? 'bg-accent text-white shadow-sm' : 'text-text-DEFAULT hover:bg-bg-raised']"
           >平铺</button>
           <button
             @click="switchToGrouped()"
-            :class="['px-3 py-1.5 rounded-md text-xs font-medium transition-all', ui.gridMode === 'grouped' ? 'bg-accent text-white shadow-sm' : 'text-text-DEFAULT hover:bg-surface-hover']"
+            :class="['px-3 py-1.5 rounded-md text-xs font-medium transition-all', ui.gridMode === 'grouped' ? 'bg-accent text-white shadow-sm' : 'text-text-DEFAULT hover:bg-bg-raised']"
           >分组</button>
         </div>
 
         <!-- 检测相似 -->
-        <div class="flex items-center gap-1">
+        <div class="flex shrink-0 items-center gap-1">
           <button
             @click="detectSimilar"
             :disabled="groupsStore.detecting"
-            class="px-3 py-1.5 text-xs font-medium rounded-lg border border-border text-text-DEFAULT hover:bg-surface-hover disabled:opacity-50 transition-colors"
+            class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border border-border text-text-DEFAULT hover:border-accent hover:text-accent disabled:opacity-50 transition-colors"
             title="检测相似照片"
           >
+            <ScanSearch class="h-3.5 w-3.5" />
             {{ groupsStore.detecting ? '检测中...' : '检测相似' }}
           </button>
           <select
             v-model.number="groupsStore.threshold"
-            class="h-7 text-xs border border-border rounded-lg px-1.5 bg-bg text-text-DEFAULT"
+            class="h-8 text-xs border border-border rounded-lg px-2 bg-bg-raised text-text-DEFAULT"
             title="相似度精确度（值越小越严格）"
           >
             <option :value="4">高精度</option>
@@ -55,12 +67,13 @@
         </div>
 
         <!-- AI Settings button -->
-        <button @click="showAISettings = true" class="px-2 py-1.5 text-text-secondary hover:text-accent rounded-lg hover:bg-surface-hover transition-colors" title="AI 设置">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+        <button @click="showAISettings = true" class="btn-icon shrink-0" title="AI 设置">
+          <Settings class="h-4 w-4" />
         </button>
 
         <!-- Export button -->
-        <button @click="showExport = true" class="btn-primary ml-2 text-xs px-3 py-1.5">
+        <button @click="showExport = true" class="btn-primary inline-flex shrink-0 items-center gap-1.5 text-xs px-3 py-1.5">
+          <Download class="h-3.5 w-3.5" />
           导出
         </button>
       </div>
@@ -69,7 +82,7 @@
     <!-- Main content -->
     <div class="flex-1 flex overflow-hidden">
       <!-- Sidebar -->
-      <aside v-if="ui.sidebarVisible" class="w-56 bg-bg-raised border-r border-border overflow-y-auto shrink-0">
+      <aside v-if="ui.sidebarVisible" class="w-60 bg-bg-raised border-r border-border overflow-y-auto shrink-0">
         <FilterPanel />
         <div class="border-t border-border"></div>
         <TagPanel />
@@ -85,16 +98,16 @@
     </div>
 
     <!-- Status bar -->
-    <footer class="h-8 flex items-center justify-between px-5 bg-bg-raised border-t border-border shrink-0 text-xs text-text-muted">
+    <footer class="h-9 flex items-center justify-between px-4 bg-bg-raised border-t border-border shrink-0 text-xs text-text-muted">
       <div class="flex items-center gap-3">
-        <span>第 {{ photos.page }}/{{ photos.totalPages }} 页</span>
         <span class="text-text-secondary">{{ currentPhoto?.filename || '' }}</span>
       </div>
-      <div class="flex items-center gap-4">
-        <span>&larr; &rarr; 翻页</span>
+      <div class="flex items-center gap-3">
+        <span>←/→ 翻页</span>
         <span>1-5 评分</span>
         <span>P 入选</span>
         <span>X 淘汰</span>
+        <span>S 侧栏</span>
         <span>Ctrl+E 导出</span>
       </div>
     </footer>
@@ -116,6 +129,17 @@ import { useTagsStore } from '../stores/tags'
 import { useGroupsStore } from '../stores/groups'
 import { useKeyboard } from '../composables/useKeyboard'
 import { useWebSocket } from '../api/websocket'
+import {
+  ArrowLeft,
+  Columns3,
+  Download,
+  Grid3X3,
+  Image,
+  PanelLeftClose,
+  PanelLeftOpen,
+  ScanSearch,
+  Settings,
+} from 'lucide-vue-next'
 import PhotoGrid from '../components/grid/PhotoGrid.vue'
 import PhotoViewer from '../components/viewer/PhotoViewer.vue'
 import CompareView from '../components/compare/CompareView.vue'
@@ -168,9 +192,9 @@ onMounted(async () => {
 })
 
 const viewModes = [
-  { key: 'grid' as const, label: '网格' },
-  { key: 'viewer' as const, label: '浏览' },
-  { key: 'compare' as const, label: '对比' },
+  { key: 'grid' as const, label: '网格', icon: Grid3X3 },
+  { key: 'viewer' as const, label: '浏览', icon: Image },
+  { key: 'compare' as const, label: '对比', icon: Columns3 },
 ]
 
 const showExport = computed({

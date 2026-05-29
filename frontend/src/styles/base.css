@@ -3,12 +3,12 @@
 @tailwind utilities;
 
 :root {
-  --color-bg: #faf9f7;
-  --color-surface: #f0ebe4;
-  --color-border: #d6d3d1;
-  --color-accent: #b45309;
-  --color-text: #1c1917;
-  --color-text-secondary: #57534e;
+  --color-bg: #f6f7f9;
+  --color-surface: #eef1f5;
+  --color-border: #d8dee8;
+  --color-accent: #2563eb;
+  --color-text: #111827;
+  --color-text-secondary: #4b5563;
 }
 
 * {
@@ -59,12 +59,12 @@ input, select {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #d6d3d1;
+  background: #cbd5e1;
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #a8a29e;
+  background: #94a3b8;
 }
 
 @layer components {
@@ -72,37 +72,37 @@ input, select {
     @apply px-4 py-2 rounded-lg bg-accent text-white text-sm font-medium transition-all;
   }
   .btn-primary:hover {
-    background-color: #92400e;
-    box-shadow: 0 2px 8px rgba(180, 83, 9, 0.25);
+    background-color: #1d4ed8;
+    box-shadow: 0 8px 18px rgba(37, 99, 235, 0.18);
   }
   .btn-ghost {
     @apply px-3 py-1.5 rounded-lg text-sm font-medium transition-all;
-    color: #57534e;
+    color: #4b5563;
   }
   .btn-ghost:hover {
-    color: #1c1917;
-    background-color: #e8e2da;
+    color: #111827;
+    background-color: #e8edf5;
   }
   .btn-icon {
     @apply w-8 h-8 flex items-center justify-center rounded-lg transition-all;
-    color: #57534e;
+    color: #4b5563;
   }
   .btn-icon:hover {
-    color: #1c1917;
-    background-color: #e8e2da;
+    color: #111827;
+    background-color: #e8edf5;
   }
   .input-base {
     @apply w-full px-3 py-2 rounded-lg border text-sm;
     background: #ffffff;
-    border-color: #d6d3d1;
-    color: #1c1917;
+    border-color: #d8dee8;
+    color: #111827;
   }
   .input-base::placeholder {
-    color: #78716c;
+    color: #7b8494;
   }
   .input-base:focus {
     outline: none;
-    border-color: #b45309;
-    box-shadow: 0 0 0 3px rgba(180, 83, 9, 0.1);
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
   }
 }
